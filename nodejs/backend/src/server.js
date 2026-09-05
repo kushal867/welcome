@@ -1,0 +1,34 @@
+require("dotenv").config();
+
+const express = require("express");
+const cors = require("cors");
+
+const productsRouter = require("./routes/products");
+const categoriesRouter = require("./routes/categories");
+
+const app = express();
+
+app.use(cors({ origin: process.env.FRONTEND_ORIGIN || "http://localhost:5173" }));
+app.use(express.json());
+
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok" });
+});
+
+app.use("/api/products", productsRouter);
+app.use("/api/categories", categoriesRouter);
+
+app.use((req, res) => {
+  res.status(404).json({ error: "Not found" });
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: "Internal server error" });
+});
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Backend running on http://localhost:${PORT}`);
+});
